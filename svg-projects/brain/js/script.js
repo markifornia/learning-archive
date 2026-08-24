@@ -4,8 +4,8 @@
 * Library Dependencies
 *
 * @version jQuery v3.4.1
-* @version Bootstrap v4.3.1
-* @version PopperJS 1.12.9
+* @version Bootstrap v5.3.8
+* @version PopperJS v2.11.8
 *
 */
 
@@ -13,12 +13,10 @@
 
   $(document).ready(function() {
 
-    /* Create look up table */
-    // usage: brainDictionary.prefrontalCortex.content
+    /* Global Config */
+    // usage: brainConfig.<key>
 
-    var brainDictionary = {
-
-      // Define global states
+    var brainConfig = {
 
       // Colors
       fillColor: '#73C067',
@@ -36,7 +34,14 @@
       dimElementHover: 'dim-element-hover',
       activeElementClick: 'active-element-click',
       dimElementClick: 'dim-element-click',
-      brainSection: '.brain-section',
+      brainSection: '.brain-section'
+
+    };
+
+    /* List of Brain Regions */
+    // usage: brainRegions.<region>
+
+    var brainRegions = {
 
       // Prefrontal Cortex
       prefrontalCortex: {
@@ -101,30 +106,35 @@
         brainContent: "<ul><li>The temporal lobe receives sensory information and helps the brain understand the meaning of this information.</li><li>Temporal lobe neurotransmitters acetylcholine and norepinephrine can trigger depression.</li><li>Too much acetylcholine can trigger depression.</li><li>A lack of norepinephrine can trigger depression.</li></ul>"
       }
 
-
     };
 
-    // Prefrontal Cortex
-    $(brainDictionary.prefrontalCortex.brainGroup).on({
+    /* Wire Up Brain Region Interactions */
+    var activeRegion = null;
+
+    Object.keys(brainRegions).forEach(function(key) {
+
+      var region = brainRegions[key];
+
+      $(region.brainGroup).on({
 
         mouseenter: function(e) {
 
-          $(brainDictionary.prefrontalCortex.brainGroup).each(function(index) {
+          $(region.brainGroup).each(function(index) {
 
-            $(this).addClass(brainDictionary.activeElementHover);
+            $(this).addClass(brainConfig.activeElementHover);
 
-            $(brainDictionary.brainSection).not(brainDictionary.prefrontalCortex.brainGroup).addClass(brainDictionary.dimElementHover);
+            $(brainConfig.brainSection).not(region.brainGroup).addClass(brainConfig.dimElementHover);
 
           });
 
         },
-        mouseleave: function(e){
+        mouseleave: function(e) {
 
-          $(brainDictionary.prefrontalCortex.brainGroup).each(function(index) {
+          $(region.brainGroup).each(function(index) {
 
-            $(this).removeClass(brainDictionary.activeElementHover);
+            $(this).removeClass(brainConfig.activeElementHover);
 
-            $(brainDictionary.brainSection).removeClass(brainDictionary.dimElementHover);
+            $(brainConfig.brainSection).removeClass(brainConfig.dimElementHover);
 
           });
 
@@ -133,513 +143,52 @@
 
           e.preventDefault();
 
-          $(brainDictionary.prefrontalCortex.brainGroup).each(function(index) {
+          activeRegion = region;
 
-            $(this).addClass(brainDictionary.activeElementClick);
+          $(region.brainGroup).each(function(index) {
 
-            $(brainDictionary.brainSection).not(brainDictionary.prefrontalCortex.brainGroup).addClass(brainDictionary.dimElementClick);
+            $(this).addClass(brainConfig.activeElementClick);
+
+            $(brainConfig.brainSection).not(region.brainGroup).addClass(brainConfig.dimElementClick);
 
           });
 
-          $(brainDictionary.modalId).modal(
-          {
+          bootstrap.Modal.getOrCreateInstance(document.querySelector(brainConfig.modalId), {
             backdrop: 'static',
             keyboard: false
-          });
+          }).show();
 
-          $(brainDictionary.modalId).addClass(brainDictionary.prefrontalCortex.brainModalClass);
-
-          // Call Brain Dictionary
+          $(brainConfig.modalId).addClass(region.brainModalClass);
 
           // Title
-          $(brainDictionary.modalTitle).html(brainDictionary.prefrontalCortex.brainLabel);
+          $(brainConfig.modalTitle).html(region.brainLabel);
 
           // Description
-          $(brainDictionary.modalBody).html(brainDictionary.prefrontalCortex.brainContent);
+          $(brainConfig.modalBody).html(region.brainContent);
 
-          $(brainDictionary.modalClose).on('click', function(e) {
-
-              $(brainDictionary.modalId).removeClass(brainDictionary.prefrontalCortex.brainModalClass);
-
-              $(brainDictionary.prefrontalCortex.brainGroup).each(function(index) {
-
-                $(this).removeClass(brainDictionary.activeElementClick);
-                $(brainDictionary.brainSection).removeClass(brainDictionary.dimElementClick);
-
-              });
-          });
         }
       });
 
-      // Frontal Lobe
-      $(brainDictionary.frontalLobe.brainGroup).on({
+    });
 
-          mouseenter: function(e) {
+    /* Manage Modal Close */
+    $(brainConfig.modalClose).on('click', function(e) {
 
-            $(brainDictionary.frontalLobe.brainGroup).each(function(index) {
+      if (!activeRegion) {
+        return;
+      }
 
-              $(this).addClass(brainDictionary.activeElementHover);
+      $(brainConfig.modalId).removeClass(activeRegion.brainModalClass);
 
-              $(brainDictionary.brainSection).not(brainDictionary.frontalLobe.brainGroup).addClass(brainDictionary.dimElementHover);
+      $(activeRegion.brainGroup).each(function(index) {
 
-            });
+        $(this).removeClass(brainConfig.activeElementClick);
+        $(brainConfig.brainSection).removeClass(brainConfig.dimElementClick);
 
-          },
-          mouseleave: function(e){
+      });
 
-            $(brainDictionary.frontalLobe.brainGroup).each(function(index) {
-
-              $(this).removeClass(brainDictionary.activeElementHover);
-
-              $(brainDictionary.brainSection).removeClass(brainDictionary.dimElementHover);
-
-            });
-
-          },
-          click: function(e) {
-
-            e.preventDefault();
-
-            $(brainDictionary.frontalLobe.brainGroup).each(function(index) {
-
-              $(this).addClass(brainDictionary.activeElementClick);
-
-              $(brainDictionary.brainSection).not(brainDictionary.frontalLobe.brainGroup).addClass(brainDictionary.dimElementClick);
-
-            });
-
-            $(brainDictionary.modalId).modal(
-            {
-              backdrop: 'static',
-              keyboard: false
-            });
-
-            $(brainDictionary.modalId).addClass(brainDictionary.frontalLobe.brainModalClass);
-
-            // Call Brain Dictionary
-
-            // Title
-            $(brainDictionary.modalTitle).html(brainDictionary.frontalLobe.brainLabel);
-
-            // Description
-            $(brainDictionary.modalBody).html(brainDictionary.frontalLobe.brainContent);
-
-            $(brainDictionary.modalClose).on('click', function(e) {
-
-                $(brainDictionary.modalId).removeClass(brainDictionary.frontalLobe.brainModalClass);
-
-                $(brainDictionary.frontalLobe.brainGroup).each(function(index) {
-
-                  $(this).removeClass(brainDictionary.activeElementClick);
-                  $(brainDictionary.brainSection).removeClass(brainDictionary.dimElementClick);
-
-                });
-            });
-          }
-        });
-
-        // Thalamus
-        $(brainDictionary.thalamus.brainGroup).on({
-
-            mouseenter: function(e) {
-
-              $(brainDictionary.thalamus.brainGroup).each(function(index) {
-
-                $(this).addClass(brainDictionary.activeElementHover);
-
-                $(brainDictionary.brainSection).not(brainDictionary.thalamus.brainGroup).addClass(brainDictionary.dimElementHover);
-
-              });
-
-            },
-            mouseleave: function(e){
-
-              $(brainDictionary.thalamus.brainGroup).each(function(index) {
-
-                $(this).removeClass(brainDictionary.activeElementHover);
-
-                $(brainDictionary.brainSection).removeClass(brainDictionary.dimElementHover);
-
-              });
-
-            },
-            click: function(e) {
-
-              e.preventDefault();
-
-              $(brainDictionary.thalamus.brainGroup).each(function(index) {
-
-                $(this).addClass(brainDictionary.activeElementClick);
-
-                $(brainDictionary.brainSection).not(brainDictionary.thalamus.brainGroup).addClass(brainDictionary.dimElementClick);
-
-              });
-
-              $(brainDictionary.modalId).modal(
-              {
-                backdrop: 'static',
-                keyboard: false
-              });
-
-              $(brainDictionary.modalId).addClass(brainDictionary.thalamus.brainModalClass);
-
-              // Call Brain Dictionary
-
-              // Title
-              $(brainDictionary.modalTitle).html(brainDictionary.thalamus.brainLabel);
-
-              // Description
-              $(brainDictionary.modalBody).html(brainDictionary.thalamus.brainContent);
-
-              $(brainDictionary.modalClose).on('click', function(e) {
-
-                  $(brainDictionary.modalId).removeClass(brainDictionary.thalamus.brainModalClass);
-
-                  $(brainDictionary.thalamus.brainGroup).each(function(index) {
-
-                    $(this).removeClass(brainDictionary.activeElementClick);
-                    $(brainDictionary.brainSection).removeClass(brainDictionary.dimElementClick);
-
-                  });
-              });
-            }
-          });
-
-          // Amygdala
-          $(brainDictionary.amygdala.brainGroup).on({
-
-              mouseenter: function(e) {
-
-                $(brainDictionary.amygdala.brainGroup).each(function(index) {
-
-                  $(this).addClass(brainDictionary.activeElementHover);
-
-                  $(brainDictionary.brainSection).not(brainDictionary.amygdala.brainGroup).addClass(brainDictionary.dimElementHover);
-
-                });
-
-              },
-              mouseleave: function(e){
-
-                $(brainDictionary.amygdala.brainGroup).each(function(index) {
-
-                  $(this).removeClass(brainDictionary.activeElementHover);
-
-                  $(brainDictionary.brainSection).removeClass(brainDictionary.dimElementHover);
-
-                });
-
-              },
-              click: function(e) {
-
-                e.preventDefault();
-
-                $(brainDictionary.amygdala.brainGroup).each(function(index) {
-
-                  $(this).addClass(brainDictionary.activeElementClick);
-
-                  $(brainDictionary.brainSection).not(brainDictionary.amygdala.brainGroup).addClass(brainDictionary.dimElementClick);
-
-                });
-
-                $(brainDictionary.modalId).modal(
-                {
-                  backdrop: 'static',
-                  keyboard: false
-                });
-
-                $(brainDictionary.modalId).addClass(brainDictionary.amygdala.brainModalClass);
-
-                // Call Brain Dictionary
-
-                // Title
-                $(brainDictionary.modalTitle).html(brainDictionary.amygdala.brainLabel);
-
-                // Description
-                $(brainDictionary.modalBody).html(brainDictionary.amygdala.brainContent);
-
-                $(brainDictionary.modalClose).on('click', function(e) {
-
-                    $(brainDictionary.modalId).removeClass(brainDictionary.amygdala.brainModalClass);
-
-                    $(brainDictionary.amygdala.brainGroup).each(function(index) {
-
-                      $(this).removeClass(brainDictionary.activeElementClick);
-                      $(brainDictionary.brainSection).removeClass(brainDictionary.dimElementClick);
-
-                    });
-                });
-              }
-            });
-
-            // Hippocampus
-            $(brainDictionary.hippocampus.brainGroup).on({
-
-                mouseenter: function(e) {
-
-                  $(brainDictionary.hippocampus.brainGroup).each(function(index) {
-
-                    $(this).addClass(brainDictionary.activeElementHover);
-
-                    $(brainDictionary.brainSection).not(brainDictionary.hippocampus.brainGroup).addClass(brainDictionary.dimElementHover);
-
-                  });
-
-                },
-                mouseleave: function(e){
-
-                  $(brainDictionary.hippocampus.brainGroup).each(function(index) {
-
-                    $(this).removeClass(brainDictionary.activeElementHover);
-
-                    $(brainDictionary.brainSection).removeClass(brainDictionary.dimElementHover);
-
-                  });
-
-                },
-                click: function(e) {
-
-                  e.preventDefault();
-
-                  $(brainDictionary.hippocampus.brainGroup).each(function(index) {
-
-                    $(this).addClass(brainDictionary.activeElementClick);
-
-                    $(brainDictionary.brainSection).not(brainDictionary.hippocampus.brainGroup).addClass(brainDictionary.dimElementClick);
-
-                  });
-
-                  $(brainDictionary.modalId).modal(
-                  {
-                    backdrop: 'static',
-                    keyboard: false
-                  });
-
-                  $(brainDictionary.modalId).addClass(brainDictionary.hippocampus.brainModalClass);
-
-                  // Call Brain Dictionary
-
-                  // Title
-                  $(brainDictionary.modalTitle).html(brainDictionary.hippocampus.brainLabel);
-
-                  // Description
-                  $(brainDictionary.modalBody).html(brainDictionary.hippocampus.brainContent);
-
-                  $(brainDictionary.modalClose).on('click', function(e) {
-
-                      $(brainDictionary.modalId).removeClass(brainDictionary.hippocampus.brainModalClass);
-
-                      $(brainDictionary.hippocampus.brainGroup).each(function(index) {
-
-                        $(this).removeClass(brainDictionary.activeElementClick);
-                        $(brainDictionary.brainSection).removeClass(brainDictionary.dimElementClick);
-
-                      });
-                  });
-                }
-              });
-
-              // Cerebellum
-              $(brainDictionary.cerebellum.brainGroup).on({
-
-                  mouseenter: function(e) {
-
-                    $(brainDictionary.cerebellum.brainGroup).each(function(index) {
-
-                      $(this).addClass(brainDictionary.activeElementHover);
-
-                      $(brainDictionary.brainSection).not(brainDictionary.cerebellum.brainGroup).addClass(brainDictionary.dimElementHover);
-
-                    });
-
-                  },
-                  mouseleave: function(e){
-
-                    $(brainDictionary.cerebellum.brainGroup).each(function(index) {
-
-                      $(this).removeClass(brainDictionary.activeElementHover);
-
-                      $(brainDictionary.brainSection).removeClass(brainDictionary.dimElementHover);
-
-                    });
-
-                  },
-                  click: function(e) {
-
-                    e.preventDefault();
-
-                    $(brainDictionary.cerebellum.brainGroup).each(function(index) {
-
-                      $(this).addClass(brainDictionary.activeElementClick);
-
-                      $(brainDictionary.brainSection).not(brainDictionary.cerebellum.brainGroup).addClass(brainDictionary.dimElementClick);
-
-                    });
-
-                    $(brainDictionary.modalId).modal(
-                    {
-                      backdrop: 'static',
-                      keyboard: false
-                    });
-
-                    $(brainDictionary.modalId).addClass(brainDictionary.cerebellum.brainModalClass);
-
-                    // Call Brain Dictionary
-
-                    // Title
-                    $(brainDictionary.modalTitle).html(brainDictionary.cerebellum.brainLabel);
-
-                    // Description
-                    $(brainDictionary.modalBody).html(brainDictionary.cerebellum.brainContent);
-
-                    $(brainDictionary.modalClose).on('click', function(e) {
-
-                        $(brainDictionary.modalId).removeClass(brainDictionary.cerebellum.brainModalClass);
-
-                        $(brainDictionary.cerebellum.brainGroup).each(function(index) {
-
-                          $(this).removeClass(brainDictionary.activeElementClick);
-                          $(brainDictionary.brainSection).removeClass(brainDictionary.dimElementClick);
-
-                        });
-                    });
-                  }
-                });
-
-                // Hippocampus
-                $(brainDictionary.hippocampus.brainGroup).on({
-
-                    mouseenter: function(e) {
-
-                      $(brainDictionary.hippocampus.brainGroup).each(function(index) {
-
-                        $(this).addClass(brainDictionary.activeElementHover);
-
-                        $(brainDictionary.brainSection).not(brainDictionary.hippocampus.brainGroup).addClass(brainDictionary.dimElementHover);
-
-                      });
-
-                    },
-                    mouseleave: function(e){
-
-                      $(brainDictionary.hippocampus.brainGroup).each(function(index) {
-
-                        $(this).removeClass(brainDictionary.activeElementHover);
-
-                        $(brainDictionary.brainSection).removeClass(brainDictionary.dimElementHover);
-
-                      });
-
-                    },
-                    click: function(e) {
-
-                      e.preventDefault();
-
-                      $(brainDictionary.hippocampus.brainGroup).each(function(index) {
-
-                        $(this).addClass(brainDictionary.activeElementClick);
-
-                        $(brainDictionary.brainSection).not(brainDictionary.hippocampus.brainGroup).addClass(brainDictionary.dimElementClick);
-
-                      });
-
-                      $(brainDictionary.modalId).modal(
-                      {
-                        backdrop: 'static',
-                        keyboard: false
-                      });
-
-                      $(brainDictionary.modalId).addClass(brainDictionary.hippocampus.brainModalClass);
-
-                      // Call Brain Dictionary
-
-                      // Title
-                      $(brainDictionary.modalTitle).html(brainDictionary.hippocampus.brainLabel);
-
-                      // Description
-                      $(brainDictionary.modalBody).html(brainDictionary.hippocampus.brainContent);
-
-                      $(brainDictionary.modalClose).on('click', function(e) {
-
-                          $(brainDictionary.modalId).removeClass(brainDictionary.hippocampus.brainModalClass);
-
-                          $(brainDictionary.hippocampus.brainGroup).each(function(index) {
-
-                            $(this).removeClass(brainDictionary.activeElementClick);
-                            $(brainDictionary.brainSection).removeClass(brainDictionary.dimElementClick);
-
-                          });
-                      });
-                    }
-                  });
-
-            // Temporal Lobe
-            $(brainDictionary.temporalLobe.brainGroup).on({
-
-                mouseenter: function(e) {
-
-                  $(brainDictionary.temporalLobe.brainGroup).each(function(index) {
-
-                    $(this).addClass(brainDictionary.activeElementHover);
-
-                    $(brainDictionary.brainSection).not(brainDictionary.temporalLobe.brainGroup).addClass(brainDictionary.dimElementHover);
-
-                  });
-
-                },
-                mouseleave: function(e){
-
-                  $(brainDictionary.temporalLobe.brainGroup).each(function(index) {
-
-                    $(this).removeClass(brainDictionary.activeElementHover);
-
-                    $(brainDictionary.brainSection).removeClass(brainDictionary.dimElementHover);
-
-                  });
-
-                },
-                click: function(e) {
-
-                  e.preventDefault();
-
-                  $(brainDictionary.temporalLobe.brainGroup).each(function(index) {
-
-                    $(this).addClass(brainDictionary.activeElementClick);
-
-                    $(brainDictionary.brainSection).not(brainDictionary.temporalLobe.brainGroup).addClass(brainDictionary.dimElementClick);
-
-                  });
-
-                  $(brainDictionary.modalId).modal(
-                  {
-                    backdrop: 'static',
-                    keyboard: false
-                  });
-
-                  $(brainDictionary.modalId).addClass(brainDictionary.temporalLobe.brainModalClass);
-
-                  // Call Brain Dictionary
-
-                  // Title
-                  $(brainDictionary.modalTitle).html(brainDictionary.temporalLobe.brainLabel);
-
-                  // Description
-                  $(brainDictionary.modalBody).html(brainDictionary.temporalLobe.brainContent);
-
-                  $(brainDictionary.modalClose).on('click', function(e) {
-
-                      $(brainDictionary.modalId).removeClass(brainDictionary.temporalLobe.brainModalClass);
-
-                      $(brainDictionary.temporalLobe.brainGroup).each(function(index) {
-
-                        $(this).removeClass(brainDictionary.activeElementClick);
-                        $(brainDictionary.brainSection).removeClass(brainDictionary.dimElementClick);
-
-                      });
-                  });
-                }
-              });
-
+    });
 
   });
+
 })(jQuery);
